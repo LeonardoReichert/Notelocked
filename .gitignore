@@ -1,0 +1,20 @@
+
+#directory of files saves:
+/saves/
+
+#ignore text locked (default extension) generated file by user:
+*.ltxt
+
+#python cache:
+*.pyc
+/__pycache__/
+
+#personal configurations:
+*.dat
+
+# files rar
+*.rar
+
+#executables
+*.exe
+
