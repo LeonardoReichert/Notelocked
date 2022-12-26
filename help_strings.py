@@ -495,7 +495,7 @@ underline 1
  Every time you need to open the content, or unlock it, you will need to use your own password, <tag fontbold>the passwords are protected by you and no one else has them</tag>, so don't lose it or you will lose the content of the saved or edited file.
 
 \t<tag subtitles>Technical Format & Encryption</tag>
- The encryption method used is "AES Mode CBC" -<tag openwikiencbc>see on wikipedia</tag>- with the purpose of "<tag fontbold>confidentiality</tag>" of the encrypted content for the total secrecy of the original data.
+ The encryption method used is "AES Mode CBC" -<tag openwikiencbc>see on wikipedia</tag>- with the purpose of "<tag fontbold>confidentiality</tag>" of encrypted content to keep the original data secret.
  The <tag fileformat>format and structure</tag> of the saved file is not a secret, because basing security on keeping the secret of the encryption procedure is not security, instead you choose to trust the encryption mode and its correct and recommended use for security.
 
 \t<tag subtitles>Notice</tag>
@@ -557,7 +557,7 @@ underline 1
  Cada vez que necesites abrir el contenido, o desbloquearlo, necesitaras usar esa clave propia, <tag fontbold>las claves las custodias tu mismo y no la tiene nadie mas</tag>, as\u00ed que no la pierdas o perder\u00e1s el contenido del archivo guardado o en edici\u00f3n.
 
 \t<tag subtitles>Formato t\u00e9cnico y Cifrado</tag>
- El m\u00e9todo de cifrado usado es "AES Modo CBC" -<tag openwikicbc>ver en Wikipedia</tag>- con el prop\u00f3sito de "<tag fontbold>confidencialidad</tag>" del contenido cifrado para el secreto total de los datos originales.
+ El m\u00e9todo de cifrado usado es "AES Modo CBC" -<tag openwikicbc>ver en Wikipedia</tag>- con el prop\u00f3sito de "<tag fontbold>confidencialidad</tag>" del contenido cifrado para guardar en secreto los datos originales.
  El <tag fileformat>formato y estructura del archivo</tag> guardado no es un secreto, porque basar la seguridad en guardar el secreto del procedimiento del cifrado no es seguridad, en lugar de eso, se elige confiar en el modo de cifrado y de su uso correcto y recomendado.
 
 \t<tag subtitles>Aviso</tag>
