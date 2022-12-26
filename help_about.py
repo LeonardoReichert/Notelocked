@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #try:
     #python 3
-from tkinter import Tk,Toplevel,Text,Frame,Label,Button,Radiobutton,IntVar,Menu;
+from tkinter import Tk,Toplevel,Text,Frame,Label,Button,Radiobutton,IntVar,Menu,BitmapImage;
 from tkinter.font import Font;
 from tkinter.messagebox import askyesno;
 from tkinter.ttk import Scrollbar, Sizegrip;
@@ -53,7 +53,7 @@ from sys import exit;
 import ext_funcs;
 import diagram_helper;
 import help_strings; #<- large strings :,) (smile)
-#from .help_strings import *;
+import tiphelper;
 
 
 author = "leoreichert5000@gmail.com";
@@ -68,14 +68,42 @@ _font_order_options = ("family","size","weight","slant","underline","overstrike"
 
 
 
+_BITMAP_GITHUB = """#define image_width 28
+#define image_height 28
+static char image_bits[] = {
+0xff,0xff,0xff,0x0f,0xff,0xff,0xff,0x0f,0x3f,0xfe,0xf1,0x0f,0x3f,0xfc,0xf0,
+0x0f,0x3f,0x00,0xf0,0x0f,0x3f,0x00,0xf0,0x0f,0x1f,0x00,0xe0,0x0f,0x1f,0x00,
+0xe0,0x0f,0x1f,0x00,0xe0,0x0f,0x0f,0x00,0xc0,0x0f,0x0f,0x00,0xc0,0x0f,0x0f,
+0x00,0xc0,0x0f,0x1f,0x00,0xe0,0x0f,0x1f,0x00,0xe0,0x0f,0x3f,0x00,0xf0,0x0f,
+0x7f,0x00,0xf8,0x0f,0xff,0x03,0xff,0x0f,0xff,0x03,0xff,0x0f,0x9f,0x03,0xff,
+0x0f,0x3f,0x00,0xff,0x0f,0xff,0x01,0xff,0x0f,0xff,0x03,0xff,0x0f,0xff,0x03,
+0xff,0x0f,0xff,0x03,0xff,0x0f,0xff,0x03,0xff,0x0f,0xff,0xff,0xff,0x0f,0xff,
+0xff,0xff,0x0f,0xff,0xff,0xff,0x0f
+};"""
+
+
+_BITMAP_BRANCH = """#define image_width 28
+#define image_height 28
+static char image_bits[] = {
+0xff,0xff,0xff,0x0f,0xff,0xff,0xff,0x0f,0xff,0xff,0xff,0x0f,0xff,0xff,0xff,
+0x0f,0x3f,0xfe,0xf1,0x0f,0x1f,0xfc,0xe0,0x0f,0x8f,0x78,0xc4,0x0f,0xcf,0x79,
+0xce,0x0f,0x8f,0x78,0xc4,0x0f,0x1f,0xfc,0xe0,0x0f,0x3f,0xfe,0xf1,0x0f,0x3f,
+0xff,0xf3,0x0f,0x3f,0xff,0xf3,0x0f,0x3f,0x00,0xf0,0x0f,0x3f,0x00,0xf8,0x0f,
+0x3f,0xff,0xff,0x0f,0x3f,0xff,0xff,0x0f,0x3f,0xff,0xff,0x0f,0x3f,0xff,0xff,
+0x0f,0x3f,0xfe,0xff,0x0f,0x1f,0xfc,0xff,0x0f,0x8f,0xf8,0xff,0x0f,0xcf,0xf9,
+0xff,0x0f,0x8f,0xf8,0xff,0x0f,0x1f,0xfc,0xff,0x0f,0x3f,0xfe,0xff,0x0f,0xff,
+0xff,0xff,0x0f,0xff,0xff,0xff,0x0f
+};"""
+
+
 ###############
-
-
 
 
 pattern_configtag = "(<tagconfig \"(.+)\">\n((.+ ?.+\n)+)*</tagconfig>)";
 
 pattern_tags = "((<tag (.+?)>)(.+?)</tag>)";
+
+
 
 
 
@@ -141,7 +169,8 @@ class DiagramsPart:
         #...
 
 
-_fontnames = {} #global fonts created
+_fontnames = {}; #global fonts created
+_bitmapsnames = []; #bitmaps names created
 
 
 class HelpFrame(Frame, DiagramsPart):
@@ -182,9 +211,50 @@ class HelpFrame(Frame, DiagramsPart):
             self.fontTextNormal = Font(name="textNormal", exists=False,
                                  family="Verdana", size=10);
 
-        self.lbProgName = Label(self.frame0, bg="white", text="Notelocked v"+version, font=self.fontMark);
-        self.lbProgName.pack(side="top");
+        # buttons links
 
+        self.frame0.columnconfigure(0, weight=1);
+        self.frame0.rowconfigure((0,1), weight=1);
+
+        self.frameLinks = Frame(self.frame0, bg=self.frame0["bg"]);
+        self.frameLinks.grid(column=0, row=1, sticky="w");
+
+        if not "github" in _bitmapsnames:
+            #create bitmaps, avoid re-create continually bitmaps on memory
+            self.bmpGithub = BitmapImage("github", data=_BITMAP_GITHUB,
+                                     foreground=self.frame0["bg"],background="gray60");
+            self.bmpBranch = BitmapImage("gitbranch", data=_BITMAP_BRANCH,
+                                     foreground=self.frame0["bg"],background="gray60");
+            
+            _bitmapsnames.append("github");
+            _bitmapsnames.append("gitbranch");
+        
+        self.btnGit = Button(self.frameLinks, font=self.fontTextNormal, text="My Github",
+                fg="blue", bg=self.frame0["bg"], 
+                image="github",compound="left", relief="flat", overrelief="ridge",
+                command=lambda: self.askOpenSite("https://github.com/LeonardoReichert"),
+               )
+        self.btnGit.pack(side="left", padx=10);
+
+        self.btnBranch = Button(self.frameLinks, font=self.fontTextNormal, text="Notelocked Repo",
+                fg="blue", bg=self.frame0["bg"],
+                image="gitbranch",compound="left", relief="flat", overrelief="ridge",
+                command=lambda: self.askOpenSite("https://github.com/LeonardoReichert/Notelocked"),
+               )
+        self.btnBranch.pack(side="left");
+        
+        tip = tiphelper.TipHelper(self);
+        tip.putOn(self.btnGit, "Open Github profile");
+        tip.putOn(self.btnBranch, "Open Github repository");
+
+        # elements into frames
+
+        self.lbProgName = Label(self.frame0, bg=self.frame0["bg"], text="Notelocked v"+version,
+                                                                     font=self.fontMark);
+        #self.lbProgName.pack(side="top");
+        self.lbProgName.grid(column=0, row=0, sticky="we");
+        
+        # text body message
         
         self.text = Text(self.frame1,wrap="word",font=self.fontTextNormal,
                          bg="#FBFBFB", tabs=35, fg="black");
@@ -470,12 +540,13 @@ class HelpFrame(Frame, DiagramsPart):
         self.text.tag_add("btncursor2", first, last);
         self.text.tag_add(tag, first, last);
 
-        def askopenbrowser():
-            if askyesno(parent=self, title="Open browser",
-                    message="Are you want open link \"%s\" in a new tab of the web browser?" % url):
-                open_new_tab(url);
+        self.text.tag_bind(tag, "<Button-1>", lambda e=None: self.askOpenSite(url));
 
-        self.text.tag_bind(tag, "<Button-1>", lambda e=None: askopenbrowser());
+
+    def askOpenSite(self,url):
+        if askyesno(parent=self, title="Open browser",
+               message="Are you want open link \"%s\" in a new tab of the web browser?" % url):
+            open_new_tab(url);
 
 
     def bindTextCopyByMenu(self, first, last, text, label):
@@ -654,6 +725,7 @@ def FirstTimeLicense(config_save):
     config_save.save();
     
     _fontnames.clear();
+    _bitmapsnames.clear();
     
     return;
 

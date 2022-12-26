@@ -89,6 +89,7 @@ foreground #2020B0
 -binddiagram diagramfile
 </tagconfig>
 
+
 <tagconfig "openmygithub">
 font urls
 foreground #0000ff
@@ -534,6 +535,7 @@ underline 1
 -bindopenweb https://github.com/LeonardoReichert
 -bindcopybymenu https://github.com/LeonardoReichert;Copiar link de Github
 </tagconfig>
+
 
 <body>
 <tag title1>\tAcerca de</tag>
