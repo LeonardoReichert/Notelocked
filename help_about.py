@@ -170,8 +170,6 @@ class DiagramsPart:
 
 
 _fontnames = {}; #global fonts created
-_bitmapsnames = []; #bitmaps names created
-
 
 class HelpFrame(Frame, DiagramsPart):
     """ Frame intern for help or about window """
@@ -217,25 +215,22 @@ class HelpFrame(Frame, DiagramsPart):
 
         self.frameLinks = Frame(self.frame0, bg=self.frame0["bg"]);
         self.frameLinks.grid(column=0, row=1, sticky="we");
-
-        if not "github" in _bitmapsnames:
+        
+        if not "github" in self.image_names():
             #create bitmaps, avoid re-create continually bitmaps on memory
             self.bmpGithub = BitmapImage("github", data=_BITMAP_GITHUB,
                                      foreground=self.frame0["bg"],background="gray60");
             self.bmpBranch = BitmapImage("gitbranch", data=_BITMAP_BRANCH,
                                      foreground=self.frame0["bg"],background="gray60");
-            
-            _bitmapsnames.append("github");
-            _bitmapsnames.append("gitbranch");
         
-        self.btnGit = Button(self.frameLinks, font=self.fontTextNormal, text="My Github",
+        self.btnGit = Button(self.frameLinks, text="My Github",
                 fg="blue", bg=self.frame0["bg"],
                 image="github",compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert"),
                )
         self.btnGit.pack(side="left", padx=10);
 
-        self.btnBranch = Button(self.frameLinks, font=self.fontTextNormal, text="Notelocked Repo",
+        self.btnBranch = Button(self.frameLinks, text="Notelocked Repo",
                 fg="blue", bg=self.frame0["bg"],
                 image="gitbranch",compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert/Notelocked"),
@@ -723,7 +718,6 @@ def FirstTimeLicense(config_save):
     config_save.save();
     
     _fontnames.clear();
-    _bitmapsnames.clear();
     
     return;
 
