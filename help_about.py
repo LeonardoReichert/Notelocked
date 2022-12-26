@@ -212,12 +212,11 @@ class HelpFrame(Frame, DiagramsPart):
                                  family="Verdana", size=10);
 
         # buttons links
-
         self.frame0.columnconfigure(0, weight=1);
         self.frame0.rowconfigure((0,1), weight=1);
 
         self.frameLinks = Frame(self.frame0, bg=self.frame0["bg"]);
-        self.frameLinks.grid(column=0, row=1, sticky="w");
+        self.frameLinks.grid(column=0, row=1, sticky="we");
 
         if not "github" in _bitmapsnames:
             #create bitmaps, avoid re-create continually bitmaps on memory
@@ -230,7 +229,7 @@ class HelpFrame(Frame, DiagramsPart):
             _bitmapsnames.append("gitbranch");
         
         self.btnGit = Button(self.frameLinks, font=self.fontTextNormal, text="My Github",
-                fg="blue", bg=self.frame0["bg"], 
+                fg="blue", bg=self.frame0["bg"],
                 image="github",compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert"),
                )
@@ -242,16 +241,15 @@ class HelpFrame(Frame, DiagramsPart):
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert/Notelocked"),
                )
         self.btnBranch.pack(side="left");
-        
+
         tip = tiphelper.TipHelper(self);
-        tip.putOn(self.btnGit, "Open Github profile");
-        tip.putOn(self.btnBranch, "Open Github repository");
+        tip.putOn(self.btnGit, "Open Github link profile");
+        tip.putOn(self.btnBranch, "Open Github link repository");
 
         # elements into frames
 
         self.lbProgName = Label(self.frame0, bg=self.frame0["bg"], text="Notelocked v"+version,
                                                                      font=self.fontMark);
-        #self.lbProgName.pack(side="top");
         self.lbProgName.grid(column=0, row=0, sticky="we");
         
         # text body message
