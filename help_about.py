@@ -223,14 +223,14 @@ class HelpFrame(Frame, DiagramsPart):
                 fg="blue", bg=self.frame0["bg"], cursor="hand2",
                 image=self.bmpGithub,compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert"),
-               )
+               );
         self.btnGit.pack(side="left", padx=10);
         
-        self.btnBranch = Button(self.frameLinks, font="textNormal", text="Notelocked Repo",
+        self.btnBranch = Button(self.frameLinks, font="textNormal", text="Notelocked Github",
                 fg="blue", bg=self.frame0["bg"], cursor="hand2",
                 image=self.bmpBranch,compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert/Notelocked"),
-               )
+               );
         self.btnBranch.pack(side="left");
 
         tip = tiphelper.TipHelper(self);

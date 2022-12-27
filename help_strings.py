@@ -487,7 +487,7 @@ underline 1
 \t<tag subtitles>Description</tag>
  Notelocked is a simple editor to save <tag fontbold>encrypted texts with a password</tag>, it maintains a simple aspect and an easy way of use, is free software and multiplatform with the licence GNU General Public License v2.0 or later.
 
- Many times we have saved important data in text files but these simple files are exposed and open to everyone who opens the file on our computer, that is a problem.
+ Many times we have saved data in text files but these simple files are exposed and open to everyone who opens the file on our computer, that is a problem.
 
  A very important objective is the protection and privacy of the content, so this program measures the user's inactivity in the program and when there is an "open and password" <tag fontbold>content in full inactivity, it auto-encrypts the open content and blocks it</tag> so that when the program is forgotten open and careless data are blocked on the computer turned on, this is protection against carelessness.
 
@@ -549,7 +549,7 @@ underline 1
 \t<tag subtitles>Descripci\u00f3n</tag>
  Notelocked es un simple editor para guardar <tag fontbold>textos cifrados con contrase\u00f1a</tag>, mantiene un aspecto sencillo y una f\u00e1cil manera de uso, es software libre y multiplataforma, con licencia GNU General Public License v2.0 o posterior.
 
- Muchas veces hemos guardado datos importantes en archivos de texto pero estos archivos sencillos est\u00e1n expuestos y abiertos a todo el mundo que abra el archivo en nuestro ordenador, eso es un problema.
+ Muchas veces hemos guardado datos en archivos de texto pero estos archivos sencillos est\u00e1n expuestos y abiertos a todo el mundo que abra el archivo en nuestro ordenador, eso es un problema.
 
  Un objetivo muy importante es la protecci\u00f3n y privacidad del contenido, entonces este programa mide la inactividad del usuario en el programa y cuando hay un contenido "abierto y con clave" <tag fontbold>en plena inactividad auto-cifra al contenido abierto y lo bloquea</tag> para que al olvidarse el programa en el ordenador encendido se bloqueen los datos abiertos y descuidados, esto es una protecci\u00f3n al descuido.
 

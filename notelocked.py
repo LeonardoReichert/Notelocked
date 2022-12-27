@@ -1054,7 +1054,7 @@ class Editor(Tk, MenuEditor, WaitLocker):
                     
                 self.geometry("%dx%d"%(width,height));
 
-        self.minsize(400,250);
+        self.minsize(350,250);
         
         try:
             self.iconbitmap(default = ext_funcs.icon);
