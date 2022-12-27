@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from tkinter import Tk,Toplevel,Text,Frame,Label,Button,Radiobutton,IntVar,Menu,BitmapImage;
 from tkinter.font import Font;
 from tkinter.messagebox import askyesno;
-from tkinter.ttk import Scrollbar, Sizegrip;
+from tkinter.ttk import Scrollbar;
 #except ImportError:
     #python 2
 #    from Tkinter import Tk,Toplevel,Text,Frame,Label,Button,Radiobutton,IntVar,Menu;
@@ -47,7 +47,7 @@ from platform import system; #need check if SO Mac, for button right
 from re import findall;
 
 #fix for binary versions:
-from sys import exit;
+#from sys import exit;
 
 
 import ext_funcs;
@@ -216,23 +216,21 @@ class HelpFrame(Frame, DiagramsPart):
         self.frameLinks = Frame(self.frame0, bg=self.frame0["bg"]);
         self.frameLinks.grid(column=0, row=1, sticky="we");
         
-        if not "github" in self.image_names():
-            #create bitmaps, avoid re-create continually bitmaps on memory
-            self.bmpGithub = BitmapImage("github", data=_BITMAP_GITHUB,
+        self.bmpGithub = BitmapImage(data=_BITMAP_GITHUB,
                                      foreground=self.frame0["bg"],background="gray60");
-            self.bmpBranch = BitmapImage("gitbranch", data=_BITMAP_BRANCH,
+        self.bmpBranch = BitmapImage(data=_BITMAP_BRANCH,
                                      foreground=self.frame0["bg"],background="gray60");
         
-        self.btnGit = Button(self.frameLinks, text="My Github",
+        self.btnGit = Button(self.frameLinks, font="textNormal", text="My Github",
                 fg="blue", bg=self.frame0["bg"],
-                image="github",compound="left", relief="flat", overrelief="ridge",
+                image=self.bmpGithub,compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert"),
                )
         self.btnGit.pack(side="left", padx=10);
-
-        self.btnBranch = Button(self.frameLinks, text="Notelocked Repo",
+        
+        self.btnBranch = Button(self.frameLinks, font="textNormal", text="Notelocked Repo",
                 fg="blue", bg=self.frame0["bg"],
-                image="gitbranch",compound="left", relief="flat", overrelief="ridge",
+                image=self.bmpBranch,compound="left", relief="flat", overrelief="ridge",
                 command=lambda: self.askOpenSite("https://github.com/LeonardoReichert/Notelocked"),
                )
         self.btnBranch.pack(side="left");
@@ -672,16 +670,6 @@ class LicenceShowForm(Tk):
         self.geometry("+%d+%d" % (x,y));
 
         self.deiconify();
-
-
-    #def No(self):
-
-        #windows, tkinter cannot save the clipboard:
-     #   ext_funcs.win32clipboard_fix(self);
-
-      #  self.destroy();
-        
-       # exit(1);
 
 
 
