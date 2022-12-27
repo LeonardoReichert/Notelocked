@@ -1245,7 +1245,7 @@ class Editor(Tk, MenuEditor, WaitLocker):
     def setLabelStateAction(self, label, seconds):
         """ set statebar label of action or file action (file loaded, need unlock, unlocked, etc),
             and the duration of label.
-            Size normally reduced to 20 chars if not need more chars"""
+            Size width normally reduced to 20 chars if not need more chars"""
             
         self.labelStateAction.configure(text=label, width=max(20, len(label)));
 

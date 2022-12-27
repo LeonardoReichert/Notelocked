@@ -502,7 +502,7 @@ underline 1
  Remember very well that it is not recommended at any time to save important or personal information in any digital medium including this one. Other programs could access to read the open windows, or read the memory. This program is not intended to replace other programs or other ways of saving information.
  This program, it does not read the inactivity outside the program, only the inactivity on this program. Is not a transmission or communication medium and it only stores the files on the chosen local drive.
  Remember, no guarantees are made about the features of the program, no warranties of any kind.
- Read the "license" or "licenses".
+ Read the "license".
 
  Thank you very much.
 
@@ -564,7 +564,7 @@ underline 1
  Recuerda muy bien, no se recomienda en ning\u00fan momento guardar información importante o personal en ning\u00fan medio digital incluido este. Otros programas podr\u00edan acceder a leer las ventanas abiertas, o leer la memoria. Este programa no pretende remplazar a otros programas o a otras formas de guardar informaci\u00f3n. 
  Este programa, no lee la inactividad fuera del programa, solo la inactividad en este programa. No es un medio de transmisi\u00f3n o comunicaci\u00f3n y solo almacena los archivos en el disco local elegido.
  Ten en cuenta, no se ofrecen garant\u00edas de ninguna funci\u00f3n del programa, no se ofrecen garant\u00edas de ning\u00fan tipo.
- Leer la "licencia" o las "licencias adjuntas".
+ Leer la "licencia".
 
  Muchas gracias.
 
