@@ -301,7 +301,7 @@ class SaveFile:
             #I thank Python >= 3
             self.content_reinit(plainText);
 
-            self.setLabelStateAction("File loaded.", 3);
+            self.setLabelStateAction("File loaded.", 5);
             
             self.init_locker_thread(); #<-check inactivity
 
@@ -373,7 +373,7 @@ class SaveFile:
                 self.current_hash = newSha(cip_fileformat.SHA_NAME,psw.encode()).hexdigest();
             else:
                 #user canceled, cannot encrypt without password
-                #self.setLabelStateAction("Canceled", 3);
+                self.setLabelStateAction("Lock Canceled", 5);
                 return;
 
         #text plain to bytes:
@@ -417,29 +417,31 @@ class SaveFile:
         self.text.configure(state="disabled");
         self.update_statebar();
 
-        self.setLabelStateAction("Content locked.", 3);
+        self.setLabelStateAction("Content locked.", 5);
         
         #lock success
 
         self.btnUnlock.pack(side="left", after=self.labelStateAction);
 
           
-    def askunlock(self): #need user acces
+    def askunlock(self, titlePrompt=""): #need user acces
         """ user tries to unlock the content by user password
             return True when succes """
         
-        if not self.getStateLocked():
+        if not self.getStateLocked(): #alredy unlocked?
             return;
 
-        kw = {};
-        if self.filename:
-            kw["title"] = 'Unlock: "%s"' % basename(self.filename);
+        kwTitle = {};
+        if titlePrompt:
+            kwTitle["title"] = titlePrompt;
+        elif self.filename:
+            kwTitle["title"] = 'Unlock: "%s"' % basename(self.filename);
         
         psw = dialogpassword.askoldpassword(self, self.current_hash,
                                         namesha=cip_fileformat.SHA_NAME,
                                         font1="font_login",
                                         font2="font_login_password",
-                                        **kw);
+                                        **kwTitle);
         if not psw:
             return False;
         
@@ -456,7 +458,7 @@ class SaveFile:
         
         self.init_locker_thread(); #<-secondary thread, checker inactivity
 
-        self.setLabelStateAction("Content unlocked.", 3);
+        self.setLabelStateAction("Content unlocked.", 5);
         self.btnUnlock.pack_forget();
 
         #indexs remember:
@@ -498,13 +500,13 @@ class SaveFile:
         if err != cip_fileformat.ERR_SUCCES:
             showwarning(parent=self, title="Error",
                             message=cip_fileformat.getMessageErrorString(err));
-            self.setLabelStateAction("File not saved!", 5);
+            self.setLabelStateAction("File not saved!", 8);
             return False;
 
         # save succes !
         self.filename = target_filename; #now is the current
 
-        self.setLabelStateAction("File saved.", 3);
+        self.setLabelStateAction("File saved.", 5);
         
         self.text.edit_modified(False);
         
@@ -517,7 +519,8 @@ class SaveFile:
         """ New file, the user will choose a file and a password, and call the self.savefile """
         
         if self.getStateLocked():
-            if not self.askunlock():
+            self.setLabelStateAction("Operation need unlock", 8);
+            if not self.askunlock("Need unlock"):
                 return False; #user canceled unlock
         
         path = ext_funcs.makePath(); #<- try make default path
@@ -548,7 +551,7 @@ class SaveFile:
             #user canceled the operation of save,
             if not self.filename:
                 # and no have a current working file
-                self.setLabelStateAction("File not saved!", 5);
+                self.setLabelStateAction("File not saved!", 8);
             return False;
         
         self.password = password;
@@ -642,7 +645,10 @@ class SaveFile:
         
         self.text.edit_modified(True); #<-user can save the changes on file
 
-        self.setLabelStateAction("Password changed.", 3);
+        if self.filename:
+            self.setLabelStateAction("Password changed, need save", 8);
+        else:
+            self.setLabelStateAction("Password changed", 8);
 
 
     def _cheeck_entrys_file(self):
@@ -1237,14 +1243,19 @@ class Editor(Tk, MenuEditor, WaitLocker):
 
 
     def setLabelStateAction(self, label, seconds):
-        """ set statebar label of action or file, and the duration of label """
-        self.labelStateAction.configure(text=label);
+        """ set statebar label of action or file action (file loaded, need unlock, unlocked, etc),
+            and the duration of label.
+            Size normally reduced to 20 chars if not need more chars"""
+            
+        self.labelStateAction.configure(text=label, width=max(20, len(label)));
 
         if self.iEventLabelAction:
+            #old event active
             self.after_cancel(self.iEventLabelAction);
-            
+        
+        #new event, clear/hidden the new state on a time:
         self.iEventLabelAction = self.after(seconds*1000,
-                                    lambda:self.labelStateAction.configure(text=""));
+                                lambda:self.labelStateAction.configure(text="", width=20));
 
 
     def asksave_content(self):

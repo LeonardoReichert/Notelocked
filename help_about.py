@@ -66,8 +66,6 @@ ismacos = system().lower()=="darwin";
 _font_order_options = ("family","size","weight","slant","underline","overstrike");
 
 
-
-
 _BITMAP_GITHUB = """#define image_width 28
 #define image_height 28
 static char image_bits[] = {
@@ -396,7 +394,7 @@ class HelpFrame(Frame, DiagramsPart):
         tags_result = findall(pattern_tags, body);
         
         lastend = 0; #now try extract tags and parse tags
-        for allstr, starttag, tagname, inside in tags_result:
+        for allstr, _starttag, tagname, inside in tags_result:
             
             #allstr: "<tag tagname>inside</tag>"
             
@@ -650,9 +648,6 @@ class LicenceShowForm(Tk):
         self.btnAcept = Button(self.frame.frame2, text="Ok", command=self.destroy);
         self.btnAcept.pack(side="right", padx=10, ipadx=20);
 
-        #self.btnDecline = Button(self.frame.frame2, text="Decline", command=self.No);
-        #self.btnDecline.pack(side="right", padx=10, ipadx=20);
-        
         #self.protocol("WM_DELETE_WINDOW", self.No);
 
         self._centerToScreen();
