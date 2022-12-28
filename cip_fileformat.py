@@ -183,7 +183,7 @@ def save_filename(filename, plain_text, password, text_encoding=default_encoding
         + hash of of password
         + name mode encryption          (usually mode_cbc)
         + encoding used                 (usually "utf-8", paded to 25 bytes)
-        + hash of (password+ metadata 1,2,4,5,7,8)
+        + hash of (password+vector+encrypted)
         + random vector generated       (usually 16 bytes)
 
     return:
