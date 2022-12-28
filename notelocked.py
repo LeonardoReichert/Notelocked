@@ -203,7 +203,7 @@ class WaitLocker:
         """ auto-lock by a thread function after of a lot inactivity """
         if self.getStateLocked() or not self.password:
             return;
-
+        
         #self._close_current_login();
         
         self.lock();

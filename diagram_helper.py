@@ -50,7 +50,7 @@ _struct_file = (
                 "3 - Hash of password............",
                 "4 - Comment MODE_CBC............",
                 "5 - Encoding of text used.......",
-                "6 - Hash of (password+encrypted)\n\t(Integrity check)",
+                "6 - Hash of: \n(password+vector+encrypted) =\n  Check data originality",
                 "7 - Vector Random...............",
                 "<rectdashed>",
                 "8 - Encrypted plain text",

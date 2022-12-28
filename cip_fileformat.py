@@ -54,7 +54,7 @@ if py_version[0] < 3:
 
 
 
-SHA_NAME = "sha256"; #max 19 chars
+SHA_NAME = "sha256";
 
 #SHA validator :
 hashLenght = 64
@@ -75,8 +75,8 @@ default_encoding = getdefaultencoding();
 ### HEADERS FILE ###
 
 idFileIdentifier = b"_Locked_"*10; #80 unique bytes
-idFileVersion = b"0.5";
-idFileSHA_NAME = SHA_NAME.encode();
+idFileVersion = b"0.6"; #0.5 was the first version
+idFileShaName = SHA_NAME.encode();
 idFileModeCipher = b"MODE_CBC";
 
 
@@ -117,7 +117,7 @@ def getMessageErrorString(err):
         return "An error ocurred, please retry";
 
     elif err == ERR_FILE_VERSION:
-        return "Error: File version incorrect";
+        return "Error: File version incorrect or file corrupt";
 
     elif err == ERR_NOALGO_HASH: #no have algorithm sha
         return "Error: hashlib no have algorithm for the hash";
@@ -183,7 +183,7 @@ def save_filename(filename, plain_text, password, text_encoding=default_encoding
         + hash of of password
         + name mode encryption          (usually mode_cbc)
         + encoding used                 (usually "utf-8", paded to 25 bytes)
-        + hash of password+encryption
+        + hash of (password+ metadata 1,2,4,5,7,8)
         + random vector generated       (usually 16 bytes)
 
     return:
@@ -208,21 +208,19 @@ def save_filename(filename, plain_text, password, text_encoding=default_encoding
 
         ######################################
         
-        vector_random, encrypted = encrypt(plain_text, password);
+        vectorRandom, encrypted = encrypt(plain_text, password);
 
-        #fill with a hash for cheeck original content sha256(password + plain_text)
-        hash_content = newSha(SHA_NAME, password+encrypted).hexdigest().encode();
-        assert len(hash_content) == 64;
+        #fill with a hash for cheeck original content:
+        hashOriginality = newSha(SHA_NAME, password+vectorRandom+encrypted).hexdigest().encode();
         
-        fp.write(idFileIdentifier+b"\n") #unique header file identificator
+        fp.write(idFileIdentifier+b"\n");
         fp.write(idFileVersion+b"\n");
-        fp.write(idFileSHA_NAME+b"\n");
+        fp.write(idFileShaName+b"\n");
         fp.write(hashPassword+b"\n");
         fp.write(idFileModeCipher+b"\n");
         fp.write(text_encoding+b"\n");
-        fp.write(hash_content+b"\n");
-        fp.write(vector_random.hex().encode()+b"\n");
-        
+        fp.write(hashOriginality+b"\n");
+        fp.write(vectorRandom.hex().encode()+b"\n");
         #double line separator
         fp.write(b"\n"+encrypted);
 
@@ -268,7 +266,7 @@ def get_hash_saved(filename):
     fversion = "";
     try:
         fversion, nameSha, hashPassword, metadata = metadata.split(b"\n", 3);
-        assert len(hashPassword) == hashLenght;
+        assert len(hashPassword) == hashLenght; #<- sha256?
     except:
         file.close();
         if fversion and fversion != idFileVersion:
@@ -284,7 +282,7 @@ def load_filename(filename, password):
         return [int: error code,
                 string plain text: decrypted file if password is correct,
                 bool: check True if content is original, calculated by the hash of
-                                                            (password+encrypted)
+                                                            (password+vector+encrypted)
                 ]
     """
 
@@ -308,8 +306,8 @@ def load_filename(filename, password):
     
     metadata = metadata.replace(b"\n\n", b""); #replace at the end
     try:
-        fver,nameSha,hashPassword,mode,enc,hashContent,vector = metadata.split(b"\n");
-        assert len(hashPassword) == hashLenght;
+        fver,nameSha,hashPassword,mode,encoding,hashContent,vector = metadata.split(b"\n");
+        assert len(hashPassword) == hashLenght; #assert while sha256
         assert len(hashContent) == hashLenght;
         vector = b"".fromhex(vector.decode());
         assert len(vector) == VECTOR_LENGTH;
@@ -319,30 +317,34 @@ def load_filename(filename, password):
             return (ERR_FILE_VERSION, "", 0); #version wrong ?
         return (ERR_FILE_CORRUPT, "", 0);
 
+    encrypted = file.read();
+
     nameSha = nameSha.decode();
     if not existsAlgoHash(nameSha):
         file.close();
         return (ERR_NOALGO_HASH, "", 0);
 
     password = password.encode();
-
     hashPassword = hashPassword.decode();
     if newSha(nameSha, password).hexdigest() != hashPassword:
         file.close();
         return (ERR_PASSWORD_INCORRECT, "", 0);
 
-    hashContent = hashContent.decode();
-    encoding = enc.decode();
-
-    encrypted = file.read();
-
-    isOriginal = newSha(nameSha, password+encrypted).hexdigest() == hashContent;
-
+    encoding = encoding.decode();
     try:
         plainText = decrypt(vector, encrypted, password);
         plainText = plainText.decode(encoding);
     except:
         return (ERR_FILE_CORRUPT, "", 0);
+
+    #check the isOriginallity is used to warn if the file is artificially changed by others
+    hashContent = hashContent.decode();
+    if fver == b"0.5": #old method
+        isOriginal = newSha(nameSha, password+encrypted).hexdigest() == hashContent;
+
+    else: #new method
+        isOriginal = newSha(nameSha, password+vector+encrypted).hexdigest() == hashContent;
+
 
     return (ERR_SUCCES, plainText, isOriginal);
 
@@ -365,7 +367,7 @@ def _lot_updater(from_folder, new_foldername, passwords):
     print("Workin in folder: %s" % from_folder);
 
     if not exists(new_foldername):
-        print("The directory %s not exits, it will created..", end="");
+        print(f"The directory {new_foldername} not exits, it will created..", end="");
         mkdir(new_foldername);
         print("ok");
 
@@ -413,7 +415,7 @@ def _lot_updater(from_folder, new_foldername, passwords):
     toTest = [];
     
     for fname, psw in toUpdate:
-        errcode, plain_text, enc, isOriginal = load_filename(fname, psw);
+        errcode, plain_text, isOriginal = load_filename(fname, psw);
         if errcode:
             print("Error of file %s:" % fname, getMessageErrorString(errcode));
             continue;
@@ -425,31 +427,33 @@ def _lot_updater(from_folder, new_foldername, passwords):
 
         new_filename = splitext(new_filename)[0] + "." + ext;
 
-        errcode = save_filename(new_filename, plain_text, psw, enc);
+        errcode = save_filename(new_filename, plain_text, psw);
         if not errcode:
             print(" Success, saved on %s" % new_filename);
         else:
             print(" Error %d " % errcode, getMessageErrorString(errcode), new_filename);
             continue;
 
-        toTest.append((fname, psw));
+        toTest.append( (new_filename, psw) );
 
-    print("\n ** testing new %d files ** \n" % len(toTest));
+    print("\n ** testing new %d files ** \n" % len(toTest) );
 
     for fname, psw in toTest:
-        load_filename(fname, psw);
-        print("ok:", fname);
+        err = load_filename(fname, psw)[0];
+        if not err:
+            print("ok:", fname);
+        else:
+            print("error:", fname, getMessageErrorString(err));
         
     input("end - pause");
 
 
-_lot_updater("saves/V3", "saves/V4/",
-["pswordtest123",
-],
+_lot_updater("C:/old saves", "C:/new versions saves",
+["12312"],
 );
 '''
 
 
 
-
+#end
 
