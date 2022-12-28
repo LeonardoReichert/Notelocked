@@ -27,9 +27,15 @@ pip install pywin32
 ```
 Al instalar pywin32 el programa usaría win32clipboard como modulo o paquete para intentar solucionar el problema de Tkinter cuando cerramos el programa, usa una función del portapapeles y re-guarda lo que había en el portapapeles, y en una gran mayoría de casos logra resguardar el portapepeles y que este no se borre.
 
+
 ## Uso
 Ejecutar **notelocked.py** o también notelocked.pyw (para correr sin la consola)
 
+
+## Licencia
+**Licencia GPLv2 o posterior**
+
+Algunas responsabilidades:  Si se quiere redistribuir el programa es necesario tener en cuenta la licencia, y si también se hace entrega de una librería o dependencia aquellas también tienen su licencia y términos.
 
 
 # Ejemplos
@@ -84,7 +90,7 @@ El programa también cuenta con documentación: secciones "acerca de", "ayuda", 
 ## Anegdotas y comentarios
 Ha sido mucho trabajo y dedicación, he aprendido mucho, y me ha dolido también en situaciones tener que reparar y corregir cosas o cambiarlas, pero mejoré mi nivel que ya tenía un buen nivel de programación en Python.
 
-Le he dado a este código compatibilidad con muchas versiones de Python3, para programar he usado Python 3 pero en una ocasión me intereso hacer el programa compatible hasta con versiones viejas como Python2 pero resulto muy problemático y cuestionablemente irreparable el modo de codificar caracteres raros con Python2 así que he puesto una restricción condicional en el código para que solo corra en versiones Python3x para que así evitar problemas, aunque así le ha quedado al código buenos arreglos para que no se dependa de versiones especificas ya que he probado en muchos casos si una determinada función o método existía en versiones anteriores de Python moderno y he perseguido alternativas para guardar compatibilidad.
+Le he dado a este código compatibilidad con muchas versiones de Python3, para programar he usado Python 3 pero en una ocasión me intereso hacer el programa compatible hasta con versiones viejas como Python2 pero resulto muy problemático y cuestionablemente irreparable el modo de codificar y decodificar caracteres raros en Python2, así que he puesto una restricción condicional en el código para que solo corra en versiones Python3x para que así evitar problemas, aunque así le ha quedado al código buenos arreglos para que no se dependa de versiones especificas ya que he probado en muchos casos si una determinada función o método existía en versiones anteriores de Python moderno y he perseguido alternativas para guardar compatibilidad con muchas versiones de Python 3.
 
 No llegaba el día de publicarlo y como grandes proyectos que no he publicado, no he querido que este sea el caso, así que me he tomado el esfuerzo de terminarlo y cumplir con esta publicación. Y aunque este no es el proyecto mas grande o que mas me ha costado, quizás he aprendido mucho y diría que es uno de los proyectos que mas me enseño.
 Algunos aspectos visuales en Tkinter, muchos, los he ensamblado con código y mucha lógica porque no existían, y sé que a algún gran experto le puede parecer "solo un programa bonito" porque está hecho en Python, pero he inventado todas las ventanas, y muchos sistemas que no los saque ninguno prediseñado de ningún sitio o trabajo ajeno.
