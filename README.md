@@ -2,8 +2,7 @@
 
 Notelocked es un simple editor para guardar textos cifrados con contraseña, mantiene un aspecto sencillo y una fácil manera de uso, es software libre y multiplataforma (escrito en Python 3)
 
-Notelocked is a simple editor to save encrypted texts with a password, it maintains a simple aspect and an easy way of use
-
+``` Notelocked is a simple editor to save encrypted texts with a password, it maintains a simple aspect and an easy way of use (writted on Python 3)```
 
 La interfaz de uso está en Ingles porque consideré que es un idioma más usado, aunque parte de la documentación está en inglés y opcionalmente en español.
 
