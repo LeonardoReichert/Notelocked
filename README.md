@@ -6,7 +6,7 @@ Notelocked es un simple editor para guardar textos cifrados con contraseña, man
 
 La interfaz de uso está en Ingles porque consideré que es un idioma más usado, aunque parte de la documentación está en inglés y opcionalmente en español.
 
-Aunque se digo simple hablo un aspecto, tiene funcionalidades que lo hacen un programa completo y con características únicas y objetivas para proteger.
+Aunque si digo simple hablo de aspecto, tiene funcionalidades que lo hacen un programa completo y con características únicas y objetivas para proteger.
 
 El código lo programe minuciosamente y logre algo perfeccionado o muy completo, todo el código es propio y me ha llevado mucho tiempo y he aprendido mucho.
 
