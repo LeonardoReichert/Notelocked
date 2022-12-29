@@ -58,7 +58,7 @@ import tiphelper;
 
 author = "leoreichert5000@gmail.com";
 
-version = "0.5";
+version = "0.6";
 
 
 ismacos = system().lower()=="darwin";
