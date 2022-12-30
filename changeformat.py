@@ -74,7 +74,7 @@ NAME_STYLE_LENGHT = 28; #max lenght
 
 
 EXAMPLE_TEXT = "This is an...\n\
-\texample text... In the summer the chickens ate corn..."
+\texample text... In the summer the chickens ate corn...";
 
 
 #human display easy values:
@@ -82,7 +82,7 @@ OPTS_DISPLAY_FRIENDLY = {"bg": "Background=BG",
                         "fg": "Text",
                         "selectforeground": "Selected Text",
                         "selectbackground": "Selected BG",
-                        "insertbackground": "Cursor insert"}
+                        "insertbackground": "Cursor insert"};
 
 
 #default styles:
@@ -103,6 +103,12 @@ createdStyles = {"Black & White": {"bg": "#303030",
                                 "selectforeground": "#FFFF40",
                                 "selectbackground": "#009F00",
                                 "insertbackground": "yellow"},
+
+                "Papher Lover": {"bg": "#FFFFA6",
+                                 "fg": "#282828",
+                                 "selectforeground": "#FFFFFF",
+                                 "selectbackground": "#007EFD",
+                                 "insertbackground": "#080808"},
                  };
 
 #reserved names, cannot edit by user
@@ -115,7 +121,7 @@ _loaded_styles = False;
 
 def LoadUserCustomStyles():
 
-    """ One times, read styles from the small DB file """
+    """ One times, read styles from the file """
     
     global _loaded_styles;
     if _loaded_styles:
@@ -136,30 +142,32 @@ def LoadUserCustomStyles():
         line = fp.readline();
 
         #name=val1;...val5;
-        div = line.split("="); 
-        if len(div) != 2:
+        parts = line.split("=");
+        if len(parts) != 2:
             continue;
 
-        name, valuepart = div;
+        name, valuepart = parts;
 
-        if len(name) > NAME_STYLE_LENGHT:
+        if len(name) > NAME_STYLE_LENGHT or name in DEFAULT_STYLES:
+            #name very long or is reserved
             continue;
 
-        values = valuepart.split(";")[:-1];
+        #only valid hex colors:
+        colors = [c for c in valuepart.split(";")[:-1] if iscolor(c)];
 
-        if len(values) != maxValues:
+        if len(colors) != maxValues:
             continue;
 
-        createdStyles[name] = {"bg": values[0],
-                        "fg": values[1],
-                        "selectforeground": values[2],
-                        "selectbackground": values[3],
-                        "insertbackground": values[4]};
+        createdStyles[name] = {"bg": colors[0],
+                        "fg": colors[1],
+                        "selectforeground": colors[2],
+                        "selectbackground": colors[3],
+                        "insertbackground": colors[4]};
     
     fp.close();
 
 
-LoadUserCustomStyles(); #load from small DB
+LoadUserCustomStyles(); #load from file
 
 
 
