@@ -53,16 +53,16 @@ class TipHelper(Toplevel):
         self._lastEventId = 0;
 
 
-    def putOn(self, widget, text, anchor="s"):
+    def putOn(self, widget, text, anchor="s", _wait=1500):
         """ put a event enter/leave by user mouse in a widget"""
         #add = True -> (no replace a posible previous event)
-        widget.bind("<Enter>",lambda e: self._enterOn(e, text, anchor), add=True);
+        widget.bind("<Enter>",lambda e: self._enterOn(e, text, anchor, _wait), add=True);
         widget.bind("<Leave>",lambda e: self._showOff(), add=True);
         widget.bind("<ButtonPress>",lambda e: self._showOff(), add=True);
         assert anchor in ("s", "n"), "anchor invalid"
 
 
-    def _enterOn(self, e, text, anchor):
+    def _enterOn(self, e, text, anchor, _wait):
         """intern, parse event enter by user mouse"""
         
         def showOn(): #temporalized
@@ -86,7 +86,7 @@ class TipHelper(Toplevel):
 
             self.deiconify(); #show
 
-        self._lastEventId = self.after(1500, showOn); #need mouse 1500ms inside of widget
+        self._lastEventId = self.after(_wait, showOn); #need mouse 1500ms inside of widget
 
 
     def showNow(self, widget, text, anchor, duration_ms=1500):
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     root = Tk();
     root.title("testing TipHelper");
-    root.geometry("200x150");
+    #root.geometry("200x150");
 
     def clic():
         tip2.showNow(button, "<- by clic", "w");
@@ -155,12 +155,16 @@ if __name__ == "__main__":
     button3 = Button(root, text="3 - and here", relief="solid");
     button3.pack(side="top", pady=10);
     
+    button4 = Button(root, text="4 - now fast", relief="solid");
+    button4.pack(side="top", pady=10);
+
     tip = TipHelper(root);
     tip2 = TipHelper(root);
 
     tip.putOn(button2, "this label is the effect test", "s");
     tip.putOn(button3, "this label\ncontain multiple lines", "s");
-    
+    tip.putOn(button4, "this label\ncontain multiple lines", "s", 200);
+
     root.mainloop();
 
 

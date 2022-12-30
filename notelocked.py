@@ -115,13 +115,24 @@ class WaitLocker:
         self.lockVars.acquire(True);
         self.locked = v;
         self.lockVars.release();
-        
+
+
+    def isLockerThreadOn(self):
+        self.lockVars.acquire(True);
+        v = self.waitLockerInit;
+        self.lockVars.release();
+        return v;
+
         
     def stop_locker_thread(self):
         """ stop the thread auto-locker"""
         self.lockVars.acquire(True);
+        isInit = self.waitLockerInit;
         self.waitLockerInit = False;
         self.lockVars.release();
+        if isInit:
+            #wait to finish the previous thread;
+            self._threadWaitLock.join();
 
 
     def init_locker_thread(self):
@@ -129,13 +140,7 @@ class WaitLocker:
         
         self.put_activity(); #<- reinit timer
         
-        if self.waitLockerInit: #a current thread locker is init, need stop
-            
-            self.stop_locker_thread();
-            
-            #print("< stoping locker Thread...", self.waitLockerInit);
-            self._threadWaitLock.join(); #wait to finish the previous thread
-            #print("  locker Thread ended>");
+        self.stop_locker_thread();
         
         self._threadWaitLock = Thread( target = self.__thread_count_inactivity );
         self.waitLockerInit = True;
@@ -153,6 +158,10 @@ class WaitLocker:
 
     def __thread_count_inactivity(self):
         """ Thread, inactivity counter, countdown time, auto-lock """
+
+        self.lockVars.acquire(True);
+        self.waitLockerInit = True;
+        self.lockVars.release();
 
         print("< locker Thread has init >");
         
@@ -194,7 +203,10 @@ class WaitLocker:
                 #elif curInactivity/60.0 % 0.5 == 0:
                 #    self.frameInactivity.configure(width=50);
 
-        
+        self.lockVars.acquire(True);
+        self.waitLockerInit = False;
+        self.lockVars.release();
+
         print("<end thread locker>");
         return; #finish thread
 
@@ -208,7 +220,7 @@ class WaitLocker:
         
         self.lock();
         
-        self._destroySubForms();
+        #self._destroySubForms();
 
 
     def _clear_current_login(self):
@@ -233,7 +245,7 @@ class SaveFile:
 
 
     def clear_reinit(self):
-        """ forget all data and session, forget all """;
+        """ forget all data and session, forget all password, etc, (new content) """;
         self.text.configure(state="normal");
         self.text.delete("0.0", "end");
         self.text.edit_reset();
@@ -252,6 +264,7 @@ class SaveFile:
         self.lockVars.release();
         
         self.btnUnlock.pack_forget();
+        self.btnFirstPassword.pack(side="left", before=self.labelStateAction);
 
 
     def new_file(self):
@@ -297,6 +310,8 @@ class SaveFile:
             self.current_hash = newSha(cip_fileformat.SHA_NAME, psw.encode()).hexdigest(); #sha256..
             self.setStateLocked(False);
             self.filename = filename;
+            
+            self.btnFirstPassword.pack_forget();
 
             #I thank Python >= 3
             self.content_reinit(plainText);
@@ -344,14 +359,38 @@ class SaveFile:
         return;
 
 
+    def create_firstpassword(self, warn_succes=False):
+        """ creeate a first password on a new content """
+        psw = dialogpassword.askcreatepassword(self,
+                                               namesha=cip_fileformat.SHA_NAME,
+                                               font1="font_login",
+                                               font2="font_login_password",
+                                               minlenght=cip_fileformat.MIN_PASSWORD,
+                                               maxlenght=cip_fileformat.MAX_PASSWORD);
+        if psw:
+            #set the current password
+            self.password = psw;
+            self.current_hash = newSha(cip_fileformat.SHA_NAME,psw.encode()).hexdigest();
+            self.btnFirstPassword.pack_forget();
+            if warn_succes:
+                self.setLabelStateAction("Password created, protected.", 8);
+            
+            if not self.isLockerThreadOn():
+                self.init_locker_thread(); #start checker inactivity
+
+            return True;
+        return False;
+
+
     def trylock(self):
         """ try lock by user """
         
-        self._destroySubForms();
+        #self._destroySubForms();
         
-        if self.lock() == -1:
-            #user has create password, but cancel lock
-            self.init_locker_thread(); #<- checker inactivity
+        #if self.lock() == -1:
+            #user has create password, but not locked
+        #    self.init_locker_thread(); #<- checker inactivity
+        self.lock();
 
 
     def lock(self):
@@ -360,24 +399,15 @@ class SaveFile:
         if self.getStateLocked(): #<- alredy locked
             return;
         
-        if not self.password:
-            psw = dialogpassword.askcreatepassword(self,
-                                               namesha=cip_fileformat.SHA_NAME,
-                                               font1="font_login",
-                                               font2="font_login_password",
-                                               minlenght=cip_fileformat.MIN_PASSWORD,
-                                               maxlenght=cip_fileformat.MAX_PASSWORD);
-            if psw:
-                #set the current password
-                self.password = psw;
-                self.current_hash = newSha(cip_fileformat.SHA_NAME,psw.encode()).hexdigest();
-            else:
-                #user canceled, cannot encrypt without password
-                self.setLabelStateAction("Lock Canceled", 5);
-                return;
-
         #text plain to bytes:
         plain_text = self.text.get("0.0", "end-1c").encode();
+
+        if not self.password:
+            warn_succes = not plain_text;
+            if not self.create_firstpassword(warn_succes):
+                self.setLabelStateAction("Lock Canceled, no have password", 5);
+                return;
+            
         if not plain_text:
             #is empty, it can't be locked, but the "recycler undo&redo" needs to be cleaned
             self.put_activity();
@@ -401,8 +431,7 @@ class SaveFile:
         self.user_last_indexs = ();
         selection = ();
         try:
-            selection = (self.text.index("sel.first"),
-                         self.text.index("sel.last"));
+            selection = (self.text.index("sel.first"), self.text.index("sel.last"));
         except:
             pass;
         
@@ -420,8 +449,9 @@ class SaveFile:
         self.setLabelStateAction("Content locked.", 5);
         
         #lock success
+        self.btnUnlock.pack(side="left", before=self.labelStateAction);    
 
-        self.btnUnlock.pack(side="left", after=self.labelStateAction);
+        self.destroySubForms();    
 
           
     def askunlock(self, titlePrompt=""): #need user acces
@@ -451,7 +481,7 @@ class SaveFile:
         self.iv = b"";
         
         self.content_reinit(plain_text.decode());
-        
+
         self.setStateLocked(False);
         
         self.update_statebar();
@@ -540,22 +570,12 @@ class SaveFile:
         if not filename:
             return False;
         
-        password = dialogpassword.askcreatepassword(self,
-                                           namesha=cip_fileformat.SHA_NAME,
-                                           font1="font_login",
-                                           font2="font_login_password",
-                                           minlenght=cip_fileformat.MIN_PASSWORD,
-                                           maxlenght=cip_fileformat.MAX_PASSWORD);
-
-        if not password:
-            #user canceled the operation of save,
+        #new file need a new password
+        if not self.create_firstpassword():
             if not self.filename:
                 # and no have a current working file
                 self.setLabelStateAction("File not saved!", 8);
-            return False;
-        
-        self.password = password;
-        self.current_hash = newSha(cip_fileformat.SHA_NAME, password.encode()).hexdigest();
+            return;
         
         self.savefile(filename);
 
@@ -850,8 +870,8 @@ class MenuEditor(SaveFile, menu_recents.MenuRecentFiles, Editable):
         self.menuFile.add_cascade(label="Secure Lock", menu=self.menuLock);
         self.iEntryLockerMenu = self.menuLock.index("end");
         
-        self.menuLock.add_command(label="Lock..", accelerator="F9", command=self.trylock, underline=1);
-        self.bind_all("<F9>", lambda e: self.trylock());
+        self.menuLock.add_command(label="Lock..", accelerator="F9", command=self.lock, underline=1);
+        self.bind_all("<F9>", lambda e: self.lock());
         self.iEntryLock = self.menuLock.index("end");
         
         self.menuLock.add_command(label="Unlock with password..", accelerator="F10", command=self.askunlock);
@@ -1123,7 +1143,7 @@ class Editor(Tk, MenuEditor, WaitLocker):
         
         Separator(self.stateFrame, orient="vertical").pack(side="left", fill="y", pady=2);
         
-        self.labelStateAction = Label(self.stateFrame, text="", width=20, anchor="w");
+        self.labelStateAction = Label(self.stateFrame, text="", anchor="w");
         self.labelStateAction.pack(side="left", padx=5);
 
         #testing:
@@ -1185,10 +1205,30 @@ class Editor(Tk, MenuEditor, WaitLocker):
                                   foreground=self.btnUnlock["background"],background="gray20");
         
         self.btnUnlock.configure(image="locker",compound="left",bd=1,overrelief="ridge");
-                
+
+
+        # button password: 
+        BITMAP_PASSWRD = """#define image_width 18
+            #define image_height 18
+            static char image_bits[] = {
+            0xff,0xff,0x03,0xff,0xff,0x03,0xff,0xff,0x03,0xff,0xff,0x03,0xff,0xff,0x03,
+            0xc3,0xff,0x03,0x81,0xff,0x03,0x18,0x00,0x00,0x3c,0x00,0x00,0x3c,0x00,0x00,
+            0x18,0x3f,0x02,0x81,0x3f,0x02,0xc3,0x3f,0x02,0xff,0xff,0x03,0xff,0xff,0x03,
+            0xff,0xff,0x03,0xff,0xff,0x03,0xff,0xff,0x03
+            };"""
+        
+        self.bpPassword = BitmapImage("password", data=BITMAP_PASSWRD,
+                                foreground=self.btnUnlock["background"],background="gray20");
+        
+        self.btnFirstPassword = Button(self.stateFrame,
+                            image="password",compound="left",bd=1,overrelief="ridge",
+                            relief="flat",cursor="hand2",
+                            command=lambda: self.create_firstpassword(warn_succes=True));
+
         # Tip helper (label on widgets)
         self.tipHelper = tiphelper.TipHelper(self);
-        self.tipHelper.putOn(self.btnUnlock, "Unlock (F10)", "n");
+        self.tipHelper.putOn(self.btnUnlock, "Unlock (F10)", "n", 500);
+        self.tipHelper.putOn(self.btnFirstPassword, "Create a password and protect", "n", 500);
         
         self.clear_reinit(); #new file
         
@@ -1198,7 +1238,7 @@ class Editor(Tk, MenuEditor, WaitLocker):
         self.text.focus();
 
 
-    def _destroySubForms(self):
+    def destroySubForms(self):
         """ intern, try destroy 'all' sub-form by program or
             user, ignore focus """
         for win in self.winfo_children():
@@ -1247,7 +1287,7 @@ class Editor(Tk, MenuEditor, WaitLocker):
             and the duration of label.
             Size width normally reduced to 20 chars if not need more chars"""
             
-        self.labelStateAction.configure(text=label, width=max(20, len(label)));
+        self.labelStateAction.configure(text=label);
 
         if self.iEventLabelAction:
             #old event active
