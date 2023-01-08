@@ -263,8 +263,9 @@ class SaveFile:
         self.waitLockerInit = False; #state of thread, init | no init
         self.lockVars.release();
         
-        self.btnUnlock.pack_forget();
-        self.btnFirstPassword.pack(side="left", before=self.labelStateAction);
+        self.btnUnlock.pack_forget(); #hidden unclock button
+        self.btnFirstPassword.pack(side="left", before=self.labelStateAction); #show button new paswword
+        self.labelStateAction.configure(text=""); #clear label state file content 
 
 
     def new_file(self):
@@ -1295,7 +1296,7 @@ class Editor(Tk, MenuEditor, WaitLocker):
         
         #new event, clear/hidden the new state on a time:
         self.iEventLabelAction = self.after(seconds*1000,
-                                lambda:self.labelStateAction.configure(text="", width=20));
+                                lambda:self.labelStateAction.configure(text=""));
 
 
     def asksave_content(self):

@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     root = Tk();
     root.title("testing TipHelper");
-    #root.geometry("200x150");
+    root.geometry("350x300");
 
     def clic():
         tip2.showNow(button, "<- by clic", "w");
