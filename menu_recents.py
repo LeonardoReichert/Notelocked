@@ -151,7 +151,8 @@ class MenuRecentFiles:
 
     def clear_and_desactive(self):
         """fast force to forget historial, by user key-accelerator"""
-        self._varNoRememberRecents.set(True);
+        newState = not self._varNoRememberRecents.get();
+        self._varNoRememberRecents.set(newState);
         self._cheeck_remember();
 
     def _showMsgInfo(self):
@@ -205,7 +206,7 @@ class MenuRecentFiles:
         " it is tester, will be replace on main by Inheritance "
         print("open test", f);
 
-    def _clear_menu_history(self):
+    def clear_menu_history(self):
         """ clear the menu recents """
         end = self.menuRecents.index("end");
         if end < self.iExtraRecents+1:
@@ -218,7 +219,7 @@ class MenuRecentFiles:
         clearHistory = self._varNoRememberRecents.get();
         
         if clearHistory:
-            self._clear_menu_history();
+            self.clear_menu_history();
             GlobalRecents.clear();
         
         #is a new value ? cheeck if need save on file
@@ -227,11 +228,12 @@ class MenuRecentFiles:
             self.config.save();
 
             if clearHistory:
-                self.setLabelStateAction("Recents [OFF][Cleared]", 3);
+                self.setLabelStateAction("Recents [OFF][Cleared]", 8);
             else:
-                self.setLabelStateAction("Recents [ON]", 3);
+                self.setLabelStateAction("Recents [ON]", 8);
 
     def setLabelStateAction(self, label, seconds):
+        """ method tester, it is replaced from main """
         print("test", label, seconds, "seconds");
         
 
@@ -262,7 +264,7 @@ if __name__ == "__main__":
     recents = MenuRecentFiles(root, menuTest, cnf);
 
     entryRecent = Entry(root);
-    entryRecent.insert(0, "Testfilename.edex");
+    entryRecent.insert(0, "Testfilename.ltxt");
     entryRecent.pack(side="top", pady=10);
     
     def test():
