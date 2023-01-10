@@ -122,7 +122,7 @@ Se han introducido algunos cambios técnicos e importantes en las versiones, los
 
  Ahora a partir de v0.7 usa una clave derivada de esa password plana y lo que se hace es:
 
- Calcular un hash sha256 de esa password plana, el resultado es 32bytes unicode y a partir de esos 32bytes más el password concatenado genera otro hash de 32bytes unicode y estos bytes se usan en el cifrado:
+ Calcular un hash sha256 de esa password plana, el resultado es 32bytes unicode y a partir de esos 32bytes más el password concatenado genera otro hash de 32bytes unicode y estos ultimos 32bytes secretos (no expuestos) se usan en el cifrado:
  
  
 ```
