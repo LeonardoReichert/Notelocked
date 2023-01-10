@@ -44,7 +44,7 @@ _default_ = {
 
             #----- Recents -----
 
-            "forget_history": True,
+            "forget_history": False,
 
             #----- format options ---- :
            
