@@ -360,6 +360,21 @@ if __name__ == "__main__":
         
         print("password: %s" % psw);
 
+        psw = askoldpassword(root, newSha(default_sha, psw.encode()).hexdigest() );
+        if not psw:
+            print("canceled re-enter password");
+            return;
+
+        print("re-enter password: %s\n" % psw);
+
+        oldPsw, newPsw = askchangepassword(root, newSha(default_sha, psw.encode()).hexdigest() );
+        if not (oldPsw and newPsw):
+            print("canceled change-password");
+            return;
+
+        print("old password: %s\nnew password: %s" % (oldPsw, newPsw) );
+
+
     Button(root, text="test", command=simple_test).pack(pady=10);
 
     root.mainloop();

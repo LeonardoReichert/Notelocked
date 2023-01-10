@@ -45,7 +45,7 @@ from hashlib import algorithms_available;
 from hashlib import new as newSha;
 from sys import getdefaultencoding;
 from sys import version_info as py_version;
-
+from os.path import exists;
 
 
 if py_version[0] < 3:
@@ -75,14 +75,14 @@ default_encoding = getdefaultencoding();
 ### HEADERS FILE ###
 
 idFileIdentifier = b"_Locked_"*10; #80 unique bytes
-idFileVersion = b"0.6"; #0.5 was the first version
+idFileVersion = b"0.7"; #0.5 was the first version
 idFileShaName = SHA_NAME.encode();
 idFileModeCipher = b"MODE_CBC";
 
 
 
 MIN_PASSWORD = 12;
-MAX_PASSWORD = 32;
+MAX_PASSWORD = 64;
 
 assert MAX_PASSWORD % 16 == 0; #mode cbc x16
 
@@ -98,7 +98,7 @@ ERR_FILE_OPEN = -4; #cannot open
 ERR_NEED_RETRY = -5; #an error ocurred
 ERR_FILE_VERSION = -6; #file version
 ERR_NOALGO_HASH = -7; #no have algorithm sha
-
+ERR_FILE_NOEXISTS = -8;
 
 def getMessageErrorString(err):
     if err == ERR_PASSWORD_INCORRECT:
@@ -121,6 +121,9 @@ def getMessageErrorString(err):
 
     elif err == ERR_NOALGO_HASH: #no have algorithm sha
         return "Error: hashlib no have algorithm for the hash";
+
+    elif err == ERR_FILE_NOEXISTS:
+        return "Error: file not exists";
 
     return "Error unknown";
 
@@ -146,8 +149,11 @@ def encrypt(sbytes, password, iv=None):
     
     sbytes = pad(sbytes, VECTOR_LENGTH, "iso7816"); #fill with 0x80.. 0 ...
 
-    if len(password)%VECTOR_LENGTH:
-        password = pad(password, VECTOR_LENGTH, "iso7816"); #+0x80.. 0 ...
+    #if len(password)%VECTOR_LENGTH:
+    #    password = pad(password, VECTOR_LENGTH, "iso7816"); #+0x80.. 0 ...
+    
+    #new versions >= 0.7, password to key cipher:
+    password = newSha(SHA_NAME, password+newSha(SHA_NAME, password).digest()).digest(); #32bytes
 
     if not iv:
         iv = get_random_bytes(VECTOR_LENGTH); #happens anyway
@@ -156,11 +162,16 @@ def encrypt(sbytes, password, iv=None):
     return (cip.iv, cip.encrypt(sbytes));
 
 
-def decrypt(iv, block, password):
+def decrypt(iv, block, password, shaName=SHA_NAME, versionFile=idFileVersion):
+    #password type are bytes
     
-    if len(password)%VECTOR_LENGTH:
-        password = pad(password, VECTOR_LENGTH, "iso7816"); #+0x80.. 0 ...
-    
+    if versionFile in (b"0.5", b"0.6"): #old versions 0.5,  0.6
+        if len(password)%VECTOR_LENGTH:
+            password = pad(password, VECTOR_LENGTH, "iso7816"); #+0x80.. 0 ...
+    else:
+        #new versions >= 0.7
+        password = newSha(shaName, password+newSha(shaName, password).digest()).digest(); #32bytes
+
     cip = AES.new(password, AES.MODE_CBC, iv);
     des = cip.decrypt(block);
 
@@ -247,6 +258,8 @@ def get_hash_saved(filename):
     try:
         file = open(filename, "rb");
     except:
+        if not exists(filename):
+            return (ERR_FILE_NOEXISTS, "", "");
         return (ERR_FILE_OPEN, "", "");
 
     #no have the unique identifier of file?
@@ -289,6 +302,8 @@ def load_filename(filename, password):
     try:
         file = open(filename, "rb");
     except:
+        if not exists(filename):
+            return (ERR_FILE_NOEXISTS, "", 0);
         return (ERR_FILE_OPEN, "", 0);
 
     #no have the unique identifier of file?
@@ -332,28 +347,27 @@ def load_filename(filename, password):
 
     encoding = encoding.decode();
     try:
-        plainText = decrypt(vector, encrypted, password);
+        plainText = decrypt(vector, encrypted, password, nameSha, fver);
         plainText = plainText.decode(encoding);
     except:
         return (ERR_FILE_CORRUPT, "", 0);
 
     #check the isOriginallity is used to warn if the file is artificially changed by others
     hashContent = hashContent.decode();
-    if fver == b"0.5": #old method
+    if fver == b"0.5": #old method 0.5
         isOriginal = newSha(nameSha, password+encrypted).hexdigest() == hashContent;
 
-    else: #new method
+    else: #new method version >= 0.6
         isOriginal = newSha(nameSha, password+vector+encrypted).hexdigest() == hashContent;
 
 
     return (ERR_SUCCES, plainText, isOriginal);
 
 
-
 '''
 def _lot_updater(from_folder, new_foldername, passwords):
     """
-    Dev function, this is used when I need to update the structure of the format file
+    Dev function, this is used when I need to update my existant files
       First I update the save file function,
       and after update the loader function
     Basically it has helped me to update my files
@@ -381,6 +395,7 @@ def _lot_updater(from_folder, new_foldername, passwords):
 
 
     toUpdate = [];
+    passwordFails = False;
 
     for fname in filenames:
         isOk = False;
@@ -396,6 +411,7 @@ def _lot_updater(from_folder, new_foldername, passwords):
                 break;
 
         if not isOk:
+            passwordFails = True;
             print(fname, "  \tneed other password");
             continue;
 
@@ -403,6 +419,16 @@ def _lot_updater(from_folder, new_foldername, passwords):
 
         toUpdate.append((fname, psw));
 
+    if passwordFails:
+        print("This test have incorrect passwords on input files.");
+        try:
+            #alarm sound, have incorret passwords
+            from win32api import Beep;
+            Beep(500, 500);
+        except ImportError:
+            pass;
+    else:
+        print("All password are correct on input files.");
 
     if not toUpdate:
         return;
@@ -436,23 +462,24 @@ def _lot_updater(from_folder, new_foldername, passwords):
 
         toTest.append( (new_filename, psw) );
 
-    print("\n ** testing new %d files ** \n" % len(toTest) );
+    print("\n ** testing %d new files ** \n" % len(toTest) );
 
+    count = 0;
     for fname, psw in toTest:
+        count += 1;
         err = load_filename(fname, psw)[0];
         if not err:
-            print("ok:", fname);
+            print("#%d ok:" % count, fname);
         else:
-            print("error:", fname, getMessageErrorString(err));
+            print("#%d error:" % count, fname, getMessageErrorString(err));
         
     input("end - pause");
 
 
-_lot_updater("C:/old saves", "C:/new versions saves",
-["12312"],
+_lot_updater("C:/old saves", "C:/new saves",
+["mypassw", ],
 );
 '''
-
 
 
 #end

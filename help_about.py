@@ -58,7 +58,7 @@ import tiphelper;
 
 author = "leoreichert5000@gmail.com";
 
-version = "0.6";
+version = "0.7";
 
 
 

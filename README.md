@@ -98,4 +98,37 @@ Espero seguir arreglándolo si es necesario arreglar ciertas cosas y mantenerlo 
 
 Att: Leonardo
 
+</br></br>
 
+Actualizaciones importantes de versiones:
+=================================
+Se han introducido algunos cambios técnicos e importantes en las versiones, los cambios importantes son sobre el formato del archivo y por lo tanto los nuevos archivos cambian a nueva versión. Al actualizar la versión y formato he conseguido que el programa logre ser compatible también con las versiones antiguas de archivos gracias a que los archivos guardados tienen un metadato donde indica su versión y de esta forma los archivos antiguos no quedan deprecados. **Para actualizar un archivo a una nueva versión solo es necesario: actualizar el programa, abrir tal archivo y volverlo a guardar**.
+
+
+</br>
+
+- ## Cambios en versión v0.6
+ 
+ Anteriormente la versión v0.5 calculaba una **integridad del cifrado** usando un hash derivado de (password+cifrado) concatenados.
+ Se actualizo ese calculo tomando otros datos que componen el proceso de cifrado: (password+vector+cifrado) concatenados.
+ De esta forma se calcula si el cifrado fue modificado por otros desde el archivo y se avisa al usuario con una advertencia. Pero a este cálculo ya no lo llamamos integridad dado que la documentación de cifrado por bloques dice que este cifrado no garantiza integridad, por este motivo este cálculo es una invención pero es más o menos la misma intención.
+
+ </br>
+
+- ## Cambios en versión v0.7
+
+
+ **Cambios en el cifrado**, anteriormente la versión v0.5 y v0.6 usaba directamente una password de texto plano y con relleno para el cifrado, lo cual si bien es un cifrado seguro al pedir una longitud de 12 hasta 32.
+
+ Ahora a partir de v0.7 usa una clave derivada de esa password plana y lo que se hace es:
+
+ Calcular un hash sha256 de esa password plana, el resultado es 32bytes unicode y a partir de esos 32bytes más el password concatenado genera otro hash de 32bytes unicode y estos bytes se usan en el cifrado:
+ 
+ 
+```
+plainPassword = b"a password secret";
+hashPublic = sha256(plainPassword).digest(); #32bytes
+keySecretCipher = sha256(plainPassword+hashPublic).digest(); #32bytes
+```
+
+Aunque en v0.6 su cifrado es seguro, ahora en v0.7 queda más claro y puede ser más seguro ya que la password de entrada no necesitará límites de longitud o que necesariamente sean de caracteres ASCII. Las contraseñas/passwords creadas podran ahora tener una longitud de 12 a 64 caracteres, pero el programa continuará exigiendo contraseñas en ASCII para evitar cualquier problema de falso tipeo equivocado.
