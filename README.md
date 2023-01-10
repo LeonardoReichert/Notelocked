@@ -131,4 +131,4 @@ hashPublic = sha256(plainPassword).digest(); #32bytes
 keySecretCipher = sha256(plainPassword+hashPublic).digest(); #32bytes
 ```
 
-Aunque en v0.6 su cifrado es seguro, ahora en v0.7 queda más claro y puede ser más seguro ya que la password de entrada no necesitará límites de longitud o que necesariamente sean de caracteres ASCII. Las contraseñas/passwords creadas podran ahora tener una longitud de 12 a 64 caracteres, pero el programa continuará exigiendo contraseñas en ASCII para evitar cualquier problema de falso tipeo equivocado.
+Aunque en v0.6 su cifrado es seguro, ahora en v0.7 queda más claro y puede ser más seguro ya que la password de entrada no necesitará límites de longitud o que necesariamente sean de caracteres ASCII. Las contraseñas/passwords creadas podrán ahora tener una longitud de 12 a 64 caracteres, pero el programa continuará exigiendo contraseñas en ASCII para evitar cualquier problema de falso tipeo equivocado.
