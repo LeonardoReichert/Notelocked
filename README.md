@@ -86,7 +86,7 @@ El programa también cuenta con documentación: secciones "acerca de", "ayuda", 
 
 
 
-## Anegdotas y comentarios
+## Anécdotas y comentarios
 Ha sido mucho trabajo y dedicación, he aprendido mucho, y me ha dolido también en situaciones tener que reparar y corregir cosas o cambiarlas, pero mejoré mi nivel que ya tenía un buen nivel de programación en Python.
 
 Le he dado a este código compatibilidad con muchas versiones de Python3, para programar he usado Python 3 pero en una ocasión me intereso hacer el programa compatible hasta con versiones viejas como Python2 pero resulto muy problemático y cuestionablemente irreparable el modo de codificar y decodificar caracteres raros en Python2, así que he puesto una restricción condicional en el código para que solo corra en versiones Python3x para que así evitar problemas, aunque así le ha quedado al código buenos arreglos para que no se dependa de versiones especificas ya que he probado en muchos casos si una determinada función o método existía en versiones anteriores de Python moderno y he perseguido alternativas para guardar compatibilidad con muchas versiones de Python 3.
