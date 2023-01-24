@@ -345,7 +345,7 @@ def askchangepassword(parent, asserthash, **kw):
 
 
 if __name__ == "__main__":
-    from tkinter import Tk,Radiobutton;
+    from tkinter import Tk;
 
     root = Tk();
     root.geometry("320x150");

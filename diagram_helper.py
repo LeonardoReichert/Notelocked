@@ -42,18 +42,20 @@ from tkinter.font import Font;
 
 
 _struct_file = (
-        {"FILE Metadata":
+        {"FILE Metadata v0.7":
                 (
-                "0 - Unique header...............",
-                "1 - File version................",
-                "2 - Name hash (sha256)..........",
-                "3 - Hash of password............",
-                "4 - Comment MODE_CBC............",
-                "5 - Encoding of text used.......",
-                "6 - Hash of: \n(password+vector+encrypted) =\n  Check data originality",
-                "7 - Vector Random...............",
+                "0 - Unique header...................",
+                "1 - File version....................",
+                "2 - Name hash (sha256)..............",
+                "3 - Hash of password................",
+                "4 - Comment MODE_CBC................",
+                "5 - Encoding of text used...........",
+                "6 - Hash of: \n  (password+vector+encrypted) =\n   Check data originality",
+                "7 - Vector Random...................",
                 "<rectdashed>",
-                "8 - Encrypted plain text",
+                '8 - Encrypted plain text.\n\
+Key used (32 secret bytes):\n\
+hash of(password+hash of password)',
                 )
         },
 );
@@ -72,6 +74,7 @@ class SimpleDiagram(Canvas):
 
         self.text = textwidget;
 
+        #need the superior window master, discard sub-widgets:
         master = self.text.master;
         while master and not master.winfo_class() in ("Toplevel", "Tk"):
             master = master.master;
